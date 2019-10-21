@@ -1,0 +1,9 @@
+2.2
+    2. On supprime les configuration de routes passant par VM2, et pour VM1, on l'interface réseaux qui était "reliée" à VM2 (LAN 1).
+
+    3.
+
+    4. Aucune réponse n'est reçue.
+
+    5. Dans notre fichier configure, nous initialisons un sous réseaux qui a pour adresse 172.16.2.1/28.
+Si nous réalisons un ping sur celle-ci, tout fonctionne car cette adresse correspond à l'adresse du sous-réseaux. Or, pour 172.16.2.10, qui correspond à l'adresse du machine sur le sous réseeau précédent, aucune machine n'est connectée (même créée), donc le ping ne fonctionne pas.

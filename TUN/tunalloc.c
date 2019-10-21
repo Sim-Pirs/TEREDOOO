@@ -27,18 +27,34 @@ int tun_alloc(char *dev)
   }
   strcpy(dev, ifr.ifr_name);
   return fd;
-}      
+}
+
+void recopie(int src, int dst){
+    /*recopie src sur dst */
+    read(src,dst,)
+   
+}
 
 int main (int argc, char** argv){
 
   int tunfd;
+  char ipaddr;
   printf("Création de %s\n",argv[1]);
   tunfd = tun_alloc(argv[1]);
+  printf("tunfd : %d \n", tunfd);
+
+  ipaddr = argv[2];
   printf("Faire la configuration de %s...\n",argv[1]);
   printf("Appuyez sur une touche pour continuer\n");
   getchar();
   printf("Interface %s Configurée:\n",argv[1]);
   system("ip addr");
+
+  while(on appuie pas){
+    recopie(tunfd,destination);
+    printf("%s", destination);
+  }
+
   printf("Appuyez sur une touche pour terminer\n");
   getchar();
 
