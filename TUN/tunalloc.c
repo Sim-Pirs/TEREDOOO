@@ -30,9 +30,40 @@ int tun_alloc(char *dev)
 }
 
 void recopie(int src, int dst){
-    /*recopie src sur dst */
-    read(src,dst,)
-   
+  
+  while(1){
+    char* buf = malloc(sizeof(char) * 100);
+    if(read_n(src,buf,100))
+
+  }
+
+
+}
+
+int reader_char(int fdtun, char *buf, int n){
+  
+  int read;
+
+  if((read=read(fdtun, buf, n))<0){
+    perror("Reading data");
+    exit(1);
+  }
+  return read;
+}
+
+int reader(int fdtun, char *buf, int n) {
+
+  int read, left = n;
+
+  while(left > 0) {
+    if ((read = reader_char(fdtun, buf, left))==0){
+      return 0 ;      
+    }else {
+      left -= read;
+      buf += read;
+    }
+  }
+  return n;  
 }
 
 int main (int argc, char** argv){
@@ -50,10 +81,7 @@ int main (int argc, char** argv){
   printf("Interface %s Configurée:\n",argv[1]);
   system("ip addr");
 
-  while(on appuie pas){
-    recopie(tunfd,destination);
-    printf("%s", destination);
-  }
+
 
   printf("Appuyez sur une touche pour terminer\n");
   getchar();

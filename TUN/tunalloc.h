@@ -14,5 +14,9 @@
 #include <linux/if_tun.h>
 
 int tun_alloc(char *dev);
+int reader_char(int fdtun, char *buf, int n);
+int reader(int fdtun, char *buf, int n);
+void recopie(int src, int dst);
+
 
 #endif
