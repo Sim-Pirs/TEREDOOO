@@ -6,4 +6,8 @@
     4. Aucune réponse n'est reçue.
 
     5. Dans notre fichier configure, nous initialisons un sous réseaux qui a pour adresse 172.16.2.1/28.
-Si nous réalisons un ping sur celle-ci, tout fonctionne car cette adresse correspond à l'adresse du sous-réseaux. Or, pour 172.16.2.10, qui correspond à l'adresse du machine sur le sous réseeau précédent, aucune machine n'est connectée (même créée), donc le ping ne fonctionne pas.
+Si nous réalisons un ping sur celle-ci, tout fonctionne car cette adresse correspond à l'adresse du sous-réseaux. Or, pour 172.16.2.10, qui correspond à l'adresse du machine sur le sous réseau précédent, aucune machine n'est connectée (même créée), donc le ping ne fonctionne pas.
+
+2.3.3. ping sur 172.16.2.1 : tout fonctionne car nous avons un réponse.
+ping sur 172.16.2.10 : on recopie sur la sortie standard les infos reçues ( en binaire). wireshark.
+2.3.4. IFF_NO_PI - Do not provide packet information  
