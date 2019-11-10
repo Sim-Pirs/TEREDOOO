@@ -1,10 +1,12 @@
 EXEC=tunalloc
-SRC= $( *.c)
-OBJ= $(SRC:.c=.o)
+CC=gcc
+CFLAGS=-W -Wall
+LDFLAGS=
+OBJ=$(SRC:.c=.o)
 
 all: $(EXEC)
 
-hello: $(OBJ)
+tunalloc: tunalloc.o extremite.o
 	@$(CC) -o $@ $^ $(LDFLAGS)
 
 %.o: %.c

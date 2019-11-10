@@ -1,4 +1,5 @@
 #include "tunalloc.h"
+#include "extremite.h"
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -58,11 +59,10 @@ void recopie(int src, int dst){
   int size = 256;
   while(1){
     char* buf = malloc(sizeof(char) * size);
-    printf("lit\n");
+    printf("LIT : \n");
     reader(src,buf,size);
-    printf("ecrit\n");
-    write(dst,buf,size);
-    printf("Salut");
+    printf("ECRIT : \n");
+    writer(dst,buf,size);
      fflush(stdout);
     }
 }
@@ -70,14 +70,18 @@ void recopie(int src, int dst){
 
 int main (int argc, char** argv){
 
+  if(argc == 1){
+    printf("Utilisation : ./tunalloc tun0 \n");
+    return 0;
+  }
+
   int tunfd;
-  char ipaddr;
   printf("Création de %s\n",argv[1]);
 
   tunfd = tun_alloc(argv[1]);
   printf("tunfd : %d \n", tunfd);
 
-  ipaddr = argv[2];
+
   printf("Faire la configuration de %s...\n",argv[1]);
   printf("Appuyez sur une touche pour continuer\n");
   getchar();
@@ -93,6 +97,8 @@ int main (int argc, char** argv){
   if(FD_ISSET(tunfd, &rd_set)){
     recopie(tunfd,dstp);
   }
+
+  ext_out(tunfd);
 
   printf("Appuyez sur une touche pour terminer\n");
   getchar();
