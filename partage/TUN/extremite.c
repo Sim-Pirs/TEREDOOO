@@ -1,4 +1,5 @@
 #include "extremite.h"
+#include "tunalloc.h"
 
 struct sockaddr_in6 serverAddr;
 struct sockaddr_in6 clientAddr;
@@ -58,7 +59,7 @@ void ext_out(int tunfd){
         int taille = sizeof(struct sockaddr_in6);
 
         printf("Waiting... \n");
-        if((clientfd = accept(socketserv,(SOCKADDR *)&clientAddr, (socklen_t)&taille)) == -1){
+        if((clientfd = accept(socketserv,(SOCKADDR *)&clientAddr, (socklen_t *)&taille)) == -1){
             perror("accept()\n");
             exit(1);
         }
