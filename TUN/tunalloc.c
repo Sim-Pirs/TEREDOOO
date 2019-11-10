@@ -1,4 +1,7 @@
 #include "tunalloc.h"
+#include "extremite.h"
+#include <stdlib.h>
+#include <unistd.h>
 
 int tun_alloc(char *dev)
 {
@@ -29,59 +32,73 @@ int tun_alloc(char *dev)
   return fd;
 }
 
-void recopie(int src, int dst){
-  
-  while(1){
-    char* buf = malloc(sizeof(char) * 100);
-    if(read_n(src,buf,100))
+int reader(int fdtun, char *buf, int n){
 
-  }
+  int read_c;
 
-
-}
-
-int reader_char(int fdtun, char *buf, int n){
-  
-  int read;
-
-  if((read=read(fdtun, buf, n))<0){
+  if((read_c=read(fdtun, buf, n))<0){
     perror("Reading data");
     exit(1);
   }
-  return read;
+  
+  return read_c;
 }
 
-int reader(int fdtun, char *buf, int n) {
+int writer(int fdtun, char *buf, int n){
+  
+  int read_c;
 
-  int read, left = n;
-
-  while(left > 0) {
-    if ((read = reader_char(fdtun, buf, left))==0){
-      return 0 ;      
-    }else {
-      left -= read;
-      buf += read;
-    }
+  if((read_c=write(fdtun, buf, n))<0){
+    perror("Reading data");
+    exit(1);
   }
-  return n;  
+  return read_c;
 }
+
+void recopie(int src, int dst){
+  int size = 256;
+  while(1){
+    char* buf = malloc(sizeof(char) * size);
+    printf("LIT : \n");
+    reader(src,buf,size);
+    printf("ECRIT : \n");
+    writer(dst,buf,size);
+     fflush(stdout);
+    }
+}
+
 
 int main (int argc, char** argv){
 
+  if(argc == 1){
+    printf("Utilisation : ./tunalloc tun0 \n");
+    return 0;
+  }
+
   int tunfd;
-  char ipaddr;
   printf("Création de %s\n",argv[1]);
+
   tunfd = tun_alloc(argv[1]);
   printf("tunfd : %d \n", tunfd);
 
-  ipaddr = argv[2];
+
   printf("Faire la configuration de %s...\n",argv[1]);
   printf("Appuyez sur une touche pour continuer\n");
   getchar();
   printf("Interface %s Configurée:\n",argv[1]);
   system("ip addr");
 
+  int dstp = 1; // sortie standard
+// set pour détecter paquet entrant //
+  fd_set rd_set;
+  FD_ZERO(&rd_set);
+  FD_SET(tunfd, &rd_set);
 
+  if(FD_ISSET(tunfd, &rd_set)){
+    recopie(tunfd,dstp);
+  }
+
+  ext_out(tunfd);
 
   printf("Appuyez sur une touche pour terminer\n");
   getchar();
