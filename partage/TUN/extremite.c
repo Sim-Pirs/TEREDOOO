@@ -66,3 +66,41 @@ void ext_out(int tunfd){
         recopieSocket(clientfd, tunfd);
     }
 }
+
+// Ouvre une connexion TCP avec l’autre extrémité du tunnel, puis lit le trafic provenant de tun0 et le retransmet dans la socket
+void ext_in(int tunfd){
+	
+	//Ouvre connexion tcp avec l'autre extremité du tunnel
+	int sock;
+    struct sockaddr_in server;
+     
+    sock = socket(AF_INET , SOCK_STREAM , 0);
+    if (sock == -1)
+    {
+        perror("problème lors de la création de la socket ... \n");
+        exit(1);
+    }
+     
+    server.sin_addr.s_addr = inet_addr("Autre extremité du tunnel");
+    server.sin_family = AF_INET;
+    server.sin_port = htons( 123 );
+ 
+    if (connect(sock , (struct sockaddr *)&server , sizeof(server)) < 0)
+    {
+        perror("Erreur lors de la connexion");
+        exit(1);
+    }
+    
+    if(listen(sock, SOMAXCONN) == -1){
+      perror("listen()");
+         exit(1);
+    }
+     
+    while(1)
+    {
+		//Lit le trafic provenant de tun0 et le retransmet dans la socket
+		recopieSocket(tunfd, sock);
+    }
+     
+    close(sock);
+}

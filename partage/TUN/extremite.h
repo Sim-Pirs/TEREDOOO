@@ -25,6 +25,6 @@ typedef struct sockaddr SOCKADDR;
 
 void ext_out(int tunfd);
 void recopieSocket(int clientfd, int tunfd);
-
+void ext_in(int tunfd);
 
 #endif
