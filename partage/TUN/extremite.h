@@ -23,7 +23,8 @@
 #define PORT 123 
 typedef struct sockaddr SOCKADDR;
 
-void ext_out();
+void ext_out(int tunfd);
+void recopieSocket(int clientfd, int tunfd);
 
 
 #endif
