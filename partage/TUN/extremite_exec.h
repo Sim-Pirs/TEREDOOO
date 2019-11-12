@@ -1,5 +1,5 @@
-#ifndef EXTREMITE_H
-#define EXTREMIE_H
+#ifndef EXTREMITE_EXEC_H
+#define EXTREMIE_EXEC_H
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -19,12 +19,6 @@
 #include <errno.h>
 
 #include "tunalloc.h"
+#include "extremite.h"
 
-#define PORT 123 
-typedef struct sockaddr SOCKADDR;
-
-void ext_out(int tunfd);
-void recopieDepuisSocket(int clientfd, int tunfd);
-void recopieDansSocket(int tunfd, int sock);
-void ext_in(int tunfd, char* destAddr);
 #endif

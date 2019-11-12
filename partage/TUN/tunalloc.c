@@ -96,9 +96,11 @@ int main (int argc, char** argv){
 
   if(FD_ISSET(tunfd, &rd_set)){
     recopie(tunfd,dstp);
+    //  ext_out(tunfd);
+
   }
 
-  ext_out(tunfd);
+  //ext_out(tunfd);
 
   printf("Appuyez sur une touche pour terminer\n");
   getchar();

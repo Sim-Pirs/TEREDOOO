@@ -1,10 +1,8 @@
 #include "extremite.h"
 #include "tunalloc.h"
 
-struct sockaddr_in6 serverAddr;
-struct sockaddr_in6 clientAddr;
 
-void recopieSocket(int clientfd, int tunfd){ // src, dest
+void recopieDepuisSocket(int clientfd, int tunfd){ // src, dest
     int size = 256;
     char tchar[size];
     ssize_t l;
@@ -24,13 +22,24 @@ void recopieSocket(int clientfd, int tunfd){ // src, dest
 
     }while(1);
 
-    close(clientfd);
+    close(clientfd); ///////////////////////////////////////////////////////////////////////////////////////////
+}
 
+void recopieDansSocket(int tunfd, int sock){
+    int size = 256;
+    while (1){
+        char *buffer = malloc(sizeof(char)*size);
+        reader(tunfd, buffer, size);
+        send(sock, buffer, size, 0);
+    }
 }
 
 void ext_out(int tunfd){
 
     int socketserv, clientfd;
+    struct sockaddr_in6 serverAddr, clientAddr;
+;
+
     if((socketserv = socket(AF_INET6, SOCK_STREAM,0)) == -1){
         perror("problème lors de la création de la socket ... \n");
         exit(1);
@@ -57,50 +66,39 @@ void ext_out(int tunfd){
     while(1){
 
         int taille = sizeof(struct sockaddr_in6);
-
         printf("Waiting... \n");
         if((clientfd = accept(socketserv,(SOCKADDR *)&clientAddr, (socklen_t *)&taille)) == -1){
             perror("accept()\n");
             exit(1);
         }
-        recopieSocket(clientfd, tunfd);
+        recopieDepuisSocket(clientfd, tunfd);
     }
 }
 
 // Ouvre une connexion TCP avec l’autre extrémité du tunnel, puis lit le trafic provenant de tun0 et le retransmet dans la socket
-void ext_in(int tunfd){
+void ext_in(int tunfd, char* destAddr){
 	
 	//Ouvre connexion tcp avec l'autre extremité du tunnel
 	int sock;
-    struct sockaddr_in server;
+    struct sockaddr_in6 server;
      
-    sock = socket(AF_INET , SOCK_STREAM , 0);
-    if (sock == -1)
+    if ((sock = socket(AF_INET6 , SOCK_STREAM , 0)) == -1)
     {
         perror("problème lors de la création de la socket ... \n");
         exit(1);
     }
      
-    server.sin_addr.s_addr = inet_addr("Autre extremité du tunnel");
-    server.sin_family = AF_INET;
-    server.sin_port = htons( 123 );
+    inet_pton(AF_INET6, destAddr, &server.sin6_addr);
+    server.sin6_family = AF_INET6;
+    server.sin6_port = htons( 123 );
  
-    if (connect(sock , (struct sockaddr *)&server , sizeof(server)) < 0)
-    {
-        perror("Erreur lors de la connexion");
-        exit(1);
+    while(1){
+        while(connect(sock , (struct sockaddr *)&server , sizeof(server)) == -1){
+             printf("attente de lancement ...");
+             sleep(1);
+        }
+        recopieDansSocket(tunfd, sock);
     }
-    
-    if(listen(sock, SOMAXCONN) == -1){
-      perror("listen()");
-         exit(1);
-    }
-     
-    while(1)
-    {
-		//Lit le trafic provenant de tun0 et le retransmet dans la socket
-		recopieSocket(tunfd, sock);
-    }
-     
-    close(sock);
+
+    printf("fin de l'entrée\n");
 }
