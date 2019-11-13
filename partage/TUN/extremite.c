@@ -108,6 +108,7 @@ void ext_in(int tunfd, char* destAddr){
     while(1){
         while(connect(sock , (struct sockaddr *)&server , sizeof(server)) == -1){
              printf("attente de lancement ...");
+             fflush(stdout);
              sleep(1);
         }
         recopieDansSocket(tunfd, sock);
