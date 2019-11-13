@@ -20,4 +20,4 @@ extremite.o: extremite.c extremite.h if_tun.h
 clean:
 	@rm -rf *.o
 	@rm -rf tunalloc
-	@rm -rf extremite_exec
+	@rm -rf extremite

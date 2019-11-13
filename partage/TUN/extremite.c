@@ -1,52 +1,15 @@
 #include "extremite.h"
+#include "if_tun.h"
 
 /*
     - Utilisation : ./extremite -in  tunfd IPADDR
                     ./extremite -out tunfd
                     ./extremite -b   tunfd IPADDR
+
+                    fc00:1234:2::36
 */
 
 #define BUF_SIZE 256
-
-int main (int argc, char* argv[]){
-
-    if(argc < 3){
-        printf("- Utilisation : ./extremite -in  tunfd IPADDR\n                ./extremite -out tunfd \n                ./extremite -b   tunfd IPADDR \n");
-        exit(1);
-    }
-
-    if(strcmp(argv[1], "-in")==0){
-         if(argc != 4){
-            printf("Erreur ...\n");
-            printf("- Utilisation : ./extremite -in  tunfd IPADDR\n");
-            exit(1);
-         }
-         ext_in(atoi(argv[2]), argv[3]);
-    }
-    
-    else if(strcmp(argv[1], "-out")==0)
-    {
-        if(argc != 3){
-            printf("Erreur ...\n");
-            printf("- Utilisation : ./extremite -out tunfd\n");
-            exit(1);
-        }
-        ext_out(atoi(argv[2]));
-    }
-    else if(strcmp(argv[1], "-b")==0){
-        if(argc != 4){
-            printf("Erreur ...\n");
-            printf("- Utilisation : ./extremite -b  tunfd IPADDR\n");
-            exit(1);
-         }
-         bidirection(atoi(argv[2]),argv[3]);
-    }
-    else{
-        printf("Erreur ...\n");
-        printf("- Utilisation : ./extremite -in  tunfd IPADDR\n                ./extremite -out tunfd \n                ./extremite -b   tunfd IPADDR \n");
-        exit(1);
-    }
-}
 
 /*
  * Recopie le contenu du socket clientfd vers le fichier tunfd
@@ -224,4 +187,51 @@ void bidirection(int tunfd, char* destAddr){
 		}
 	}
 	close(sock);
+}
+
+
+int main (int argc, char* argv[]){
+
+    if(argc < 3){
+        printf("- Utilisation : ./extremite -in  tunfd IPADDR\n                ./extremite -out tunfd \n                ./extremite -b   tunfd IPADDR \n");
+        exit(1);
+    }
+
+    int tunfd = tun_alloc(argv[2]);
+
+
+    if(strcmp(argv[1], "-in")==0){
+         if(argc != 4){
+            printf("Erreur ...\n");
+            printf("- Utilisation : ./extremite -in  tunfd IPADDR\n");
+            exit(1);
+         }
+        
+         ext_in(tunfd, argv[3]);
+    }
+    
+    else if(strcmp(argv[1], "-out")==0)
+    {
+        if(argc != 3){
+            printf("Erreur ...\n");
+            printf("- Utilisation : ./extremite -out tunfd\n");
+            exit(1);
+        }
+        ext_out(tunfd);
+    }
+    else if(strcmp(argv[1], "-b")==0){
+        if(argc != 4){
+            printf("Erreur ...\n");
+            printf("- Utilisation : ./extremite -b  tunfd IPADDR\n");
+            exit(1);
+         }
+         bidirection(tunfd,argv[3]);
+    }
+    else{
+        printf("Erreur ...\n");
+        printf("- Utilisation : ./extremite -in  tunfd IPADDR\n                ./extremite -out tunfd \n                ./extremite -b   tunfd IPADDR \n");
+        exit(1);
+    }
+
+    return 0;
 }
