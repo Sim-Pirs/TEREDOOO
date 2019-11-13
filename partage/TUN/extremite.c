@@ -1,6 +1,5 @@
 #include "extremite.h"
-#include "tunalloc.h"
-
+#include "if_tun.h"
 
 void recopieDepuisSocket(int clientfd, int tunfd){ // src, dest
     int size = 256;

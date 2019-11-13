@@ -18,7 +18,4 @@
 #include <netdb.h>
 #include <errno.h>
 
-#include "tunalloc.h"
-#include "extremite.h"
-
 #endif

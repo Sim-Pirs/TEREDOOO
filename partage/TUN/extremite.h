@@ -18,8 +18,6 @@
 #include <netdb.h>
 #include <errno.h>
 
-#include "tunalloc.h"
-
 #define PORT 123 
 typedef struct sockaddr SOCKADDR;
 

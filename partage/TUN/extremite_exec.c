@@ -1,4 +1,6 @@
 #include "extremite_exec.h"
+#include "if_tun.h"
+#include "extremite.h"
 
 /*
     - Utilisation : ./extremite_exec -in  tunfd IPADDR
@@ -19,7 +21,7 @@ int main (int argc, char* argv[]){
             printf("- Utilisation : ./extremite_exec -in  tunfd IPADDR\n");
             exit(1);
          }
-         ext_in(argv[2], argv[3]);
+         ext_in(atoi(argv[2]), argv[3]);
     }
     
     else if(strcmp(argv[1], "-out")==0)
@@ -29,7 +31,7 @@ int main (int argc, char* argv[]){
             printf("- Utilisation : ./extremite_exec -out tunfd\n");
             exit(1);
         }
-        ext_out(argv[2]);
+        ext_out(atoi(argv[2]));
     }
     else if(strcmp(argv[1], "-b")==0){
         if(argc != 4){
