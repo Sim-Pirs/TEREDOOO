@@ -26,4 +26,6 @@ void ext_out(int tunfd);
 void recopieDepuisSocket(int clientfd, int tunfd);
 void recopieDansSocket(int tunfd, int sock);
 void ext_in(int tunfd, char* destAddr);
+void bidirection(int tunfd, char* destAddr);
+int creer_connexion(char *destAddr);
 #endif

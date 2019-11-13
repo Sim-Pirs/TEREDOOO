@@ -6,6 +6,8 @@
                     ./extremite -b   tunfd IPADDR
 */
 
+#define BUF_SIZE 256
+
 int main (int argc, char* argv[]){
 
     if(argc < 3){
@@ -37,7 +39,7 @@ int main (int argc, char* argv[]){
             printf("- Utilisation : ./extremite -b  tunfd IPADDR\n");
             exit(1);
          }
-         /*bidirection(argv[2],argv[3]);*/
+         bidirection(atoi(argv[2]),argv[3]);
     }
     else{
         printf("Erreur ...\n");
@@ -134,15 +136,11 @@ void ext_in(int tunfd, char* destAddr){
 	int sock;
     struct sockaddr_in6 server;
      
-    if ((sock = socket(AF_INET6 , SOCK_STREAM , 0)) == -1)
+    if ((sock = creer_connexion(destAddr)) == -1)
     {
         perror("problème lors de la création de la socket ... \n");
         exit(1);
     }
-     
-    inet_pton(AF_INET6, destAddr, &server.sin6_addr);
-    server.sin6_family = AF_INET6;
-    server.sin6_port = htons( 123 );
  
     while(1){
         while(connect(sock , (struct sockaddr *)&server , sizeof(server)) == -1){
@@ -154,4 +152,76 @@ void ext_in(int tunfd, char* destAddr){
     close(sock);
 
     printf("fin de l'entrée\n");
+}
+
+int creer_connexion(char *destAddr){
+	int sock;
+    struct sockaddr_in6 server;
+     
+    if ((sock = socket(AF_INET6 , SOCK_STREAM , 0)) == -1)
+    {
+        perror("problème lors de la création de la socket ... \n");
+        exit(1);
+    }
+     
+    inet_pton(AF_INET6, destAddr, &server.sin6_addr);
+    server.sin6_family = AF_INET6;
+    server.sin6_port = htons( 123 );
+	return sock;
+}
+
+void bidirection(int tunfd, char* destAddr){
+	
+	char buf[BUF_SIZE];
+	fd_set rdfs;
+	int sock;
+	
+	if ((sock = creer_connexion(destAddr)) == -1)
+    {
+        perror("problème lors de la création de la socket ... \n");
+        exit(1);
+    }
+    
+	while(1)
+	{
+		FD_ZERO(&rdfs);
+
+		FD_SET(STDIN_FILENO, &rdfs);
+
+		FD_SET(sock, &rdfs);
+
+/*
+		if(select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
+		{
+			perror("select()");
+			exit(errno);
+		}
+*/
+
+		//Si on a écrit
+		if(FD_ISSET(STDIN_FILENO, &rdfs))
+		{
+			fgets(buf, BUF_SIZE - 1, stdin);
+			char *p = NULL;
+			p = strstr(buf, "\n");
+			if(p != NULL)
+				*p = 0;
+            else
+				buf[BUF_SIZE - 1] = 0;
+			writer(sock, buf,BUF_SIZE);
+		}
+		//Si on a reçu quelque chose
+		else if(FD_ISSET(sock, &rdfs))
+		{
+			int n = reader(sock, buf,BUF_SIZE);
+			/* server down */
+			if(n == 0)
+			{
+				printf("Server disconnected !\n");
+				break;
+			}
+			puts(buf);
+		}
+	}
+	close(sock);
 }
