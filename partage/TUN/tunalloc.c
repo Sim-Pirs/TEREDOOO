@@ -1,5 +1,4 @@
 #include "tunalloc.h"
-#include "if_tun.h"
 
 int main (int argc, char** argv){
 

@@ -17,6 +17,7 @@
 #include <unistd.h> 
 #include <netdb.h>
 #include <errno.h>
+#include "if_tun.h"
 
 #define PORT 123 
 typedef struct sockaddr SOCKADDR;

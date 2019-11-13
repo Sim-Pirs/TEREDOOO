@@ -1,6 +1,54 @@
 #include "extremite.h"
-#include "if_tun.h"
 
+/*
+    - Utilisation : ./extremite -in  tunfd IPADDR
+                    ./extremite -out tunfd
+                    ./extremite -b   tunfd IPADDR
+*/
+
+int main (int argc, char* argv[]){
+
+    if(argc < 3){
+        printf("- Utilisation : ./extremite -in  tunfd IPADDR\n                ./extremite -out tunfd \n                ./extremite -b   tunfd IPADDR \n");
+        exit(1);
+    }
+
+    if(strcmp(argv[1], "-in")==0){
+         if(argc != 4){
+            printf("Erreur ...\n");
+            printf("- Utilisation : ./extremite -in  tunfd IPADDR\n");
+            exit(1);
+         }
+         ext_in(atoi(argv[2]), argv[3]);
+    }
+    
+    else if(strcmp(argv[1], "-out")==0)
+    {
+        if(argc != 3){
+            printf("Erreur ...\n");
+            printf("- Utilisation : ./extremite -out tunfd\n");
+            exit(1);
+        }
+        ext_out(atoi(argv[2]));
+    }
+    else if(strcmp(argv[1], "-b")==0){
+        if(argc != 4){
+            printf("Erreur ...\n");
+            printf("- Utilisation : ./extremite -b  tunfd IPADDR\n");
+            exit(1);
+         }
+         /*bidirection(argv[2],argv[3]);*/
+    }
+    else{
+        printf("Erreur ...\n");
+        printf("- Utilisation : ./extremite -in  tunfd IPADDR\n                ./extremite -out tunfd \n                ./extremite -b   tunfd IPADDR \n");
+        exit(1);
+    }
+}
+
+/*
+ * Recopie le contenu du socket clientfd vers le fichier tunfd
+ */
 void recopieDepuisSocket(int clientfd, int tunfd){ // src, dest
     int size = 256;
     char tchar[size];
@@ -24,20 +72,25 @@ void recopieDepuisSocket(int clientfd, int tunfd){ // src, dest
     close(clientfd); ///////////////////////////////////////////////////////////////////////////////////////////
 }
 
+/*
+ * Met le contenu du fichier tunfd vers le socket sock
+ */
 void recopieDansSocket(int tunfd, int sock){
     int size = 256;
+    char *buffer = malloc(sizeof(char)*size);
     while (1){
-        char *buffer = malloc(sizeof(char)*size);
         reader(tunfd, buffer, size);
         send(sock, buffer, size, 0);
     }
 }
 
+/*
+ * Gère le serveur
+ */
 void ext_out(int tunfd){
 
     int socketserv, clientfd;
     struct sockaddr_in6 serverAddr, clientAddr;
-;
 
     if((socketserv = socket(AF_INET6, SOCK_STREAM,0)) == -1){
         perror("problème lors de la création de la socket ... \n");
@@ -52,7 +105,7 @@ void ext_out(int tunfd){
     serverAddr.sin6_addr = in6addr_any;
     serverAddr.sin6_port = htons(PORT);
 
-    if((bind(socketserv, (SOCKADDR *)&serverAddr, sizeof(serverAddr))) == -1) { 
+    if(bind(socketserv, (SOCKADDR *)&serverAddr, sizeof(serverAddr)) == -1) { 
         perror("bind failed...\n"); 
         exit(1); 
     } 
@@ -62,9 +115,8 @@ void ext_out(int tunfd){
          exit(1);
     }
 
+	int taille = sizeof(struct sockaddr_in6);
     while(1){
-
-        int taille = sizeof(struct sockaddr_in6);
         printf("Waiting... \n");
         if((clientfd = accept(socketserv,(SOCKADDR *)&clientAddr, (socklen_t *)&taille)) == -1){
             perror("accept()\n");
@@ -72,6 +124,7 @@ void ext_out(int tunfd){
         }
         recopieDepuisSocket(clientfd, tunfd);
     }
+    close(socketserv);
 }
 
 // Ouvre une connexion TCP avec l’autre extrémité du tunnel, puis lit le trafic provenant de tun0 et le retransmet dans la socket
@@ -98,6 +151,7 @@ void ext_in(int tunfd, char* destAddr){
         }
         recopieDansSocket(tunfd, sock);
     }
+    close(sock);
 
     printf("fin de l'entrée\n");
 }

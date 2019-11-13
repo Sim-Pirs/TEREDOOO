@@ -1,5 +1,8 @@
 #include "if_tun.h"
 
+/*
+ * Lit n caractères de fdtun dans le buffer buf
+ */
 int reader(int fdtun, char *buf, int n){
 
   int read_c;
@@ -12,6 +15,9 @@ int reader(int fdtun, char *buf, int n){
   return read_c;
 }
 
+/*
+ * Ecrit n caractère du buffer vers le fichier fdtun
+ */
 int writer(int fdtun, char *buf, int n){
   
   int read_c;
@@ -23,6 +29,9 @@ int writer(int fdtun, char *buf, int n){
   return read_c;
 }
 
+/*
+ * 
+ */
 void recopie(int src, int dst){
   int size = 256;
   while(1){
@@ -35,7 +44,9 @@ void recopie(int src, int dst){
     }
 }
 
-
+/*
+ * 
+ */
 int tun_alloc(char *dev)
 {
   struct ifreq ifr;
