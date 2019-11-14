@@ -55,35 +55,37 @@ void recopieDansSocket(int tunfd, int sock){
 void ext_out(int tunfd){
 
     int socketserv, clientfd;
-    struct sockaddr_in6 serverAddr, clientAddr;
+    struct sockaddr_in6 serverAddr;
+    int reuseaddr = 1;
 
     if((socketserv = socket(AF_INET6, SOCK_STREAM,0)) == -1){
         perror("problème lors de la création de la socket ... \n");
         exit(1);
     }
 
-    int reuseaddr = 1;
     setsockopt(socketserv,SOL_SOCKET,SO_REUSEADDR,&reuseaddr,sizeof(reuseaddr)); // set option :  buffer de serveur a l'adresse reuseaddr
     
     // initialisation, IP, PORT 
     serverAddr.sin6_family = AF_INET6; 
     serverAddr.sin6_addr = in6addr_any;
-    serverAddr.sin6_port = htons(PORT);
+    serverAddr.sin6_port = htons(123);
 
-    if(bind(socketserv, (SOCKADDR *)&serverAddr, sizeof(serverAddr)) == -1) { 
-        perror("bind failed...\n"); 
-        exit(1); 
-    } 
+    if(bind(socketserv,(struct sockaddr *) &serverAddr, sizeof serverAddr) == -1)
+   {
+      perror("bind()");
+      exit(errno);
+   }
 
-    if(listen(socketserv, SOMAXCONN) == -1){
+   if(listen(socketserv, SOMAXCONN) == -1)
+   {
       perror("listen()");
-         exit(1);
-    }
+      exit(errno);
+   }
 
 	int taille = sizeof(struct sockaddr_in6);
     while(1){
         printf("Waiting... \n");
-        if((clientfd = accept(socketserv,(SOCKADDR *)&clientAddr, (socklen_t *)&taille)) == -1){
+        if((clientfd = accept(socketserv,NULL, NULL)) == -1){
             perror("accept()\n");
             exit(1);
         }
@@ -99,17 +101,20 @@ void ext_in(int tunfd, char* destAddr){
 	int sock;
     struct sockaddr_in6 server;
      
-    if ((sock = creer_connexion(destAddr)) == -1)
+    if ((sock = socket(AF_INET6, SOCK_STREAM, 0)) == -1)
     {
         perror("problème lors de la création de la socket ... \n");
         exit(1);
     }
+    
+    server.sin6_family = AF_INET6;
+    server.sin6_port = htons(123);
+    inet_pton(AF_INET6, destAddr, &server.sin6_addr);
  
     while(1){
         while(connect(sock , (struct sockaddr *)&server , sizeof(server)) == -1){
-             printf("attente de lancement ...");
-             fflush(stdout);
-             sleep(1);
+             printf("%d",errno);
+             exit(errno);
         }
         recopieDansSocket(tunfd, sock);
     }
@@ -118,33 +123,22 @@ void ext_in(int tunfd, char* destAddr){
     printf("fin de l'entrée\n");
 }
 
-int creer_connexion(char *destAddr){
-	int sock;
-    struct sockaddr_in6 server;
-     
-    if ((sock = socket(AF_INET6 , SOCK_STREAM , 0)) == -1)
-    {
-        perror("problème lors de la création de la socket ... \n");
-        exit(1);
-    }
-     
-    inet_pton(AF_INET6, destAddr, &server.sin6_addr);
-    server.sin6_family = AF_INET6;
-    server.sin6_port = htons( 123 );
-	return sock;
-}
-
 void bidirection(int tunfd, char* destAddr){
 	
 	char buf[BUF_SIZE];
 	fd_set rdfs;
 	int sock;
+    struct sockaddr_in6 server;
 	
-	if ((sock = creer_connexion(destAddr)) == -1)
+	if ((sock = socket(AF_INET6, SOCK_STREAM, 0)) == -1)
     {
         perror("problème lors de la création de la socket ... \n");
         exit(1);
     }
+    
+    server.sin6_family = AF_INET6;
+    server.sin6_port = htons(123);
+    inet_pton(AF_INET6, destAddr, &server.sin6_addr);
     
 	while(1)
 	{
