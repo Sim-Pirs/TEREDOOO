@@ -40,12 +40,12 @@ void recopieDepuisSocket(int clientfd, int tunfd){ // src, dest
 /*
  * Met le contenu du fichier tunfd vers le socket sock
  */
-void recopieDansSocket(int tunfd, int sock){
+void recopieDansSocket(int src, int dst){
     int size = 256;
     char *buffer = malloc(sizeof(char)*size);
     while (1){
-        reader(tunfd, buffer, size);
-        send(sock, buffer, size, 0);
+        reader(src, buffer, size);
+        send(dst, buffer, size, 0);
     }
 }
 
@@ -89,6 +89,8 @@ void ext_out(int tunfd){
             perror("accept()\n");
             exit(1);
         }
+        printf("Connexion reussie\n");
+		fflush(stdout);
         recopieDepuisSocket(clientfd, tunfd);
     }
     close(socketserv);
@@ -96,7 +98,7 @@ void ext_out(int tunfd){
 
 // Ouvre une connexion TCP avec l’autre extrémité du tunnel, puis lit le trafic provenant de tun0 et le retransmet dans la socket
 void ext_in(int tunfd, char* destAddr){
-	
+
 	//Ouvre connexion tcp avec l'autre extremité du tunnel
 	int sock;
     struct sockaddr_in6 server;
@@ -112,10 +114,12 @@ void ext_in(int tunfd, char* destAddr){
     inet_pton(AF_INET6, destAddr, &server.sin6_addr);
  
     while(1){
-        while(connect(sock , (struct sockaddr *)&server , sizeof(server)) == -1){
+        if(connect(sock , (struct sockaddr *)&server , sizeof(server)) == -1){
              printf("%d",errno);
-             exit(errno);
+             exit(1);
         }
+        printf("Connexion reussie\n");
+        fflush(stdout);
         recopieDansSocket(tunfd, sock);
     }
     close(sock);
@@ -192,7 +196,8 @@ int main (int argc, char* argv[]){
         exit(1);
     }
 
-    int tunfd = tun_alloc(argv[2]);
+    //int tunfd = tun_alloc(argv[2]);
+    int tunfd = open("tunfd", O_RDWR);
 
 
     if(strcmp(argv[1], "-in")==0){
